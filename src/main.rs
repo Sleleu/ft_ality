@@ -9,9 +9,9 @@ fn get_file(filename: &String)-> String {
 fn main() {
     let args: Vec<String> = env::args().collect();
     if args.len() != 2 {
-        println!("yoyoyo");
+        panic!("Usage: cargo run [filename]");
     }
-    println!("{:?} {:?}", args, args.len());
-    let file = get_file(&args[1]);
-    println!("File content:\n{}", file)
+    let str_file: String = get_file(&args[1]);
+    let keys_values: Vec<&str> = str_file.split('\n').collect();
+    println!("File content:\n{:?}", keys_values);
 }
