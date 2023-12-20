@@ -4,6 +4,7 @@ a;left
 j;kick
 k;punch
 
-jump+j;air kick
-jump+k;air punch
-d+k;dash
+jump+kick;air kick
+jump+punch;air punch
+right+kick;big kick
+kick;fast kick

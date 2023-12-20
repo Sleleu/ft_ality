@@ -1,5 +1,6 @@
 use std::env;
 use std::fs;
+mod parsing;
 
 fn get_file(filename: &String)-> String {
     fs::read_to_string(filename)
@@ -12,6 +13,5 @@ fn main() {
         panic!("Usage: cargo run [filename]");
     }
     let str_file: String = get_file(&args[1]);
-    let keys_values: Vec<&str> = str_file.split('\n').collect();
-    println!("File content:\n{:?}", keys_values);
+    let (keymap, combos) = parsing::parse_file(&str_file);
 }
