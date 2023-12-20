@@ -1,0 +1,9 @@
+d;right
+a;left
+ ;jump
+j;kick
+k;punch
+
+jump+j;air kick
+jump+k;air punch
+d+k;dash
