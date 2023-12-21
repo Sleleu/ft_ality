@@ -7,3 +7,5 @@ edition = "2021"
 
 [dependencies]
 indexmap = "1.7.0"
+termion = "2.0.3"
+sdl2 = "0.36.0"
