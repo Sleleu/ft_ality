@@ -42,12 +42,13 @@ fn check_separator(parts: &Vec<&str>) {
     }
 }
 
-pub fn parse_file(file: &String) {
+pub fn parse_file(file: &String)-> (IndexMap<String,String>, IndexMap<Vec<String>,String>) {
     let parts: Vec<&str> = file.split("\n\n").collect();
     check_separator(&parts);
-    dbg!(&parts); // OK
+    // dbg!(&parts); // OK
     let keymap = get_keymap(&parts[0]);
-    dbg!(&keymap); // OK
+    // dbg!(&keymap); // OK
     let combos = get_combos(&parts[1]);
-    dbg!(&combos); // OK
+    // dbg!(&combos); // OK
+    (keymap, combos)
 }
