@@ -1,9 +1,11 @@
 use indexmap::IndexMap;
 use std::{env, fs, process::exit,};
+use tailcall::tailcall;
+
+extern crate sdl2; 
 use sdl2::{
     event::Event,
     keyboard::Keycode,
-    EventPump,
 };
 mod parsing;
 
@@ -12,29 +14,81 @@ fn get_file(filename: &String)-> String {
         .expect("Error while reading file")
 }
 
-fn event_loop(event_pump: &mut sdl2::EventPump) {
-    'running: loop {
-        for event in event_pump.poll_iter() {
-            match event {
-                Event::Quit {..} |
-                Event::KeyDown { keycode: Some(Keycode::Escape), .. } => break 'running,
-                Event::KeyDown { keycode: Some(key), .. } => println!("{:?}", key),
-                _ => {}
-            }
+fn find_combo(state: &Vec<String>, combos: &IndexMap<Vec<String>, String>) -> Option<String> {
+    combos.iter()
+        .find_map(|(keys, value)| {
+            if state == (keys) { Some(value.clone()) }
+            else { None }
+        })
+}
+
+fn is_longer_combo(state: &Vec<String>, combos: &IndexMap<Vec<String>, String>) -> bool {
+    combos.keys().any(|keys| keys.len() > state.len() && keys.starts_with(state))
+}
+
+fn is_in_combo(state: &Vec<String>, combos: &IndexMap<Vec<String>, String>) -> bool {
+    combos.keys().any(|keys| keys.starts_with(state))
+}
+
+fn display_combo(new_state: &Vec<String>, combo_name: String) {
+    println!("{:?}\n{}\n", &new_state, combo_name);
+}
+
+fn check_if_combo(state: Vec<String>, action: String, combos: &IndexMap<Vec<String>, String>) -> Vec<String> {
+    let new_state = vec![state.clone(), vec![action]].concat();
+    match find_combo(&new_state, combos) {
+        Some(combo_name) => {
+            display_combo(&new_state, combo_name);
+            if !is_longer_combo(&new_state, combos) { Vec::new() }
+            else { new_state }
+        },
+        None => {
+            if !is_in_combo(&new_state, combos) { Vec::new() }
+            else { new_state }
         }
     }
 }
 
-fn init_sdl() {
+fn handle_key(key: Keycode, state: Vec<String>, keymap: &IndexMap<String, String>, combos: &IndexMap<Vec<String>, String>) -> Vec<String> {
+    if let Some(action) = keymap.get(&key.name().to_string()) {
+        check_if_combo(state, action.clone(), combos)
+    } else {
+        state
+    }
+}
+
+#[tailcall]
+fn event_loop_recursive(
+    event_pump: &mut sdl2::EventPump, 
+    keymap: &IndexMap<String, String>, 
+    combos: &IndexMap<Vec<String>, String>,
+    state: Vec<String>
+) {
+    if let Some(event) = event_pump.poll_iter().next() {
+        match event {
+            Event::Quit {..} |
+            Event::KeyDown { keycode: Some(Keycode::Escape), .. } => return,
+            Event::KeyDown { keycode: Some(key), .. } => {
+                let new_state = handle_key(key, state, keymap, combos);
+                event_loop_recursive(event_pump, keymap, combos, new_state);
+            },
+            _ => event_loop_recursive(event_pump, keymap, combos, state),
+        }
+    }
+    event_loop_recursive(event_pump, keymap, combos, state);
+}
+
+
+fn init_sdl(keymap: IndexMap<String, String>, combos: IndexMap<Vec<String>, String>) {
     let sdl_context = sdl2::init().unwrap();
     let video_subsystem = sdl_context.video().unwrap();
-    let window = video_subsystem
+    let _window = video_subsystem
         .window("Ft_ality", 800, 600)
         .build()
         .expect("Could not initialize the video subsystem");
 
     let mut event_pump = sdl_context.event_pump().unwrap();
-    event_loop(&mut event_pump)
+    event_loop_recursive(&mut event_pump, &keymap, &combos, Vec::new())
 }
 
 fn main() {
@@ -48,5 +102,5 @@ fn main() {
     let (keymap, combos) = parsing::parse_file(&str_file);
     dbg!(&keymap); // OK
     dbg!(&combos); // OK
-    init_sdl();
+    init_sdl(keymap, combos);
 }
