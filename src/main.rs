@@ -50,15 +50,15 @@ fn check_if_combo(state: Vec<String>, action: String, combos: &IndexMap<Vec<Stri
     }
 }
 
-fn handle_key(key: Keycode, state: Vec<String>, keymap: &IndexMap<String, String>, combos: &IndexMap<Vec<String>, String>) -> Vec<String> {
-    if let Some(action) = keymap.get(&key.name().to_string()) {
+fn handle_key(key: Keycode, state: Vec<String>, keymap: &IndexMap<Keycode, String>, combos: &IndexMap<Vec<String>, String>) -> Vec<String> {
+    if let Some(action) = keymap.get(&key) {
         check_if_combo(state, action.clone(), combos)
     } else {
         state
     }
 }
 
-fn event_loop(event_pump: &mut sdl2::EventPump, keymap: &IndexMap<String, String>, 
+fn event_loop(event_pump: &mut sdl2::EventPump, keymap: &IndexMap<Keycode, String>, 
               combos: &IndexMap<Vec<String>, String>, mut state: Vec<String>) {
     loop {
         if let Some(event) = event_pump.poll_iter().next() {
@@ -91,7 +91,7 @@ fn event_loop(event_pump: &mut sdl2::EventPump, keymap: &IndexMap<String, String
 // }
 
 
-fn init_sdl(keymap: IndexMap<String, String>, combos: IndexMap<Vec<String>, String>) {
+fn init_sdl(keymap: IndexMap<Keycode, String>, combos: IndexMap<Vec<String>, String>) {
     let sdl_context = sdl2::init().unwrap();
     let video_subsystem = sdl_context.video().unwrap();
     let _window = video_subsystem

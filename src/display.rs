@@ -1,4 +1,5 @@
 use indexmap::IndexMap;
+use sdl2::keyboard::Keycode;
 
 const CYAN: &str = "\x1b[1;36m";
 const YELLOW: &str = "\x1b[1;33m";
@@ -7,7 +8,7 @@ const PURPLE: &str = "\x1b[1;35m";
 const END: &str = "\x1b[0m";
 
 
-pub fn display_keymap(keymap: &IndexMap<String, String>) {
+pub fn display_keymap(keymap: &IndexMap<Keycode, String>) {
     println!("{}\n------ Key mappings ------\n", PURPLE);
     keymap.iter().for_each(|(key, val)| {
         println!("{}{} {}-> {}{}", CYAN, key, YELLOW, GREEN, val);
