@@ -8,6 +8,7 @@ use sdl2::{
     keyboard::Keycode,
 };
 mod parsing;
+mod display;
 
 fn get_file(filename: &String)-> String {
     fs::read_to_string(filename)
@@ -30,21 +31,17 @@ fn is_in_combo(state: &Vec<String>, combos: &IndexMap<Vec<String>, String>) -> b
     combos.keys().any(|keys| keys.starts_with(state))
 }
 
-fn display_combo(new_state: &Vec<String>, combo_name: String) {
-    println!("{:?}\n{}\n", &new_state, combo_name);
-}
-
 fn check_if_combo(state: Vec<String>, action: String, combos: &IndexMap<Vec<String>, String>) -> Vec<String> {
     let new_state = vec![state.clone(), vec![action.clone()]].concat();
     match find_combo(&new_state, combos) {
         Some(combo_name) => {
-            display_combo(&new_state, combo_name);
+            display::display_combo(&new_state, combo_name);
             if !is_longer_combo(&new_state, combos) { vec![] }
             else { new_state }
         },
         None => {
             if let Some(combo_name) = combos.get(&vec![action.clone()]) { // si spam un combo avec 1 move
-                display_combo(&vec![action.clone()], combo_name.to_string());
+                display::display_combo(&vec![action.clone()], combo_name.to_string());
                 vec![action] // Retoune l'action
             }
             else if !is_in_combo(&new_state, combos) { vec![] }
@@ -117,5 +114,6 @@ fn main() {
     let (keymap, combos) = parsing::parse_file(&str_file);
     // dbg!(&keymap); // OK
     // dbg!(&combos); // OK
+    display::display_keymap(&keymap);
     init_sdl(keymap, combos);
 }
