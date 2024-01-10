@@ -5,8 +5,17 @@ const CYAN: &str = "\x1b[1;36m";
 const YELLOW: &str = "\x1b[1;33m";
 const GREEN: &str = "\x1b[1;32m";
 const PURPLE: &str = "\x1b[1;35m";
+const RED: &str = "\x1b[1;31m";
 const END: &str = "\x1b[0m";
 
+pub fn display_banner()  {
+    println!("\n{}███████╗████████╗     █████╗ ██╗     ██╗████████╗██╗   ██╗", RED);
+    println!("{}██╔════╝╚══██╔══╝    ██╔══██╗██║     ██║╚══██╔══╝╚██╗ ██╔╝", CYAN);
+    println!("{}█████╗     ██║       ███████║██║     ██║   ██║    ╚████╔╝ ", YELLOW);
+    println!("{}██╔══╝     ██║       ██╔══██║██║     ██║   ██║     ╚██╔╝  ", GREEN);
+    println!("{}██║        ██║       ██║  ██║███████╗██║   ██║      ██║   ", PURPLE);
+    println!("╚═╝        ╚═╝       ╚═╝  ╚═╝╚══════╝╚═╝   ╚═╝      ╚═╝   {}", END);
+}
 
 pub fn display_keymap(keymap: &IndexMap<Keycode, String>) {
     println!("{}\n------ Key mappings ------\n", PURPLE);

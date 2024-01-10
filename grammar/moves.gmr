@@ -1,0 +1,12 @@
+D;right
+A;left
+Space;jump
+J;kick
+K;punch
+
+jump+kick;air kick
+jump+punch;air punch
+right+kick;big kick
+kick+right;low kick
+kick;fast kick
+jump+jump;double jump

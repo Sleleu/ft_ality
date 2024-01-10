@@ -114,6 +114,7 @@ fn main() {
     let (keymap, combos) = parsing::parse_file(&str_file);
     // dbg!(&keymap); // OK
     // dbg!(&combos); // OK
+    display::display_banner();
     display::display_keymap(&keymap);
     init_sdl(keymap, combos);
 }
