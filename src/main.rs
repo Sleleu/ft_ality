@@ -1,6 +1,6 @@
 use indexmap::IndexMap;
 use std::{env, fs, process::exit,};
-use tailcall::tailcall;
+// use tailcall::tailcall;
 
 extern crate sdl2; 
 use sdl2::{
@@ -35,15 +35,19 @@ fn display_combo(new_state: &Vec<String>, combo_name: String) {
 }
 
 fn check_if_combo(state: Vec<String>, action: String, combos: &IndexMap<Vec<String>, String>) -> Vec<String> {
-    let new_state = vec![state.clone(), vec![action]].concat();
+    let new_state = vec![state.clone(), vec![action.clone()]].concat();
     match find_combo(&new_state, combos) {
         Some(combo_name) => {
             display_combo(&new_state, combo_name);
-            if !is_longer_combo(&new_state, combos) { Vec::new() }
+            if !is_longer_combo(&new_state, combos) { vec![] }
             else { new_state }
         },
         None => {
-            if !is_in_combo(&new_state, combos) { Vec::new() }
+            if let Some(combo_name) = combos.get(&vec![action.clone()]) { // si spam un combo avec 1 move
+                display_combo(&vec![action.clone()], combo_name.to_string());
+                vec![action] // Retoune l'action
+            }
+            else if !is_in_combo(&new_state, combos) { vec![] }
             else { new_state }
         }
     }
@@ -57,26 +61,37 @@ fn handle_key(key: Keycode, state: Vec<String>, keymap: &IndexMap<String, String
     }
 }
 
-#[tailcall]
-fn event_loop_recursive(
-    event_pump: &mut sdl2::EventPump, 
-    keymap: &IndexMap<String, String>, 
-    combos: &IndexMap<Vec<String>, String>,
-    state: Vec<String>
-) {
-    if let Some(event) = event_pump.poll_iter().next() {
-        match event {
-            Event::Quit {..} |
-            Event::KeyDown { keycode: Some(Keycode::Escape), .. } => return,
-            Event::KeyDown { keycode: Some(key), .. } => {
-                let new_state = handle_key(key, state, keymap, combos);
-                event_loop_recursive(event_pump, keymap, combos, new_state);
-            },
-            _ => event_loop_recursive(event_pump, keymap, combos, state),
-        }
-    }
-    event_loop_recursive(event_pump, keymap, combos, state);
+fn event_loop(event_pump: &mut sdl2::EventPump, keymap: &IndexMap<String, String>, 
+              combos: &IndexMap<Vec<String>, String>, mut state: Vec<String>) {
+    loop {
+        if let Some(event) = event_pump.poll_iter().next() {
+            match event {
+                Event::Quit {..} |
+                Event::KeyDown { keycode: Some(Keycode::Escape), .. } => return,
+                Event::KeyDown { keycode: Some(key), .. } => {
+                    state = handle_key(key, state, keymap, combos);
+                },
+                _ => {}
+            }}}
 }
+
+// version tailcall mais j'arrive pas a supp les warnings :(
+// #[tailcall]
+// fn event_loop_rec(event_pump: &mut sdl2::EventPump, keymap: &IndexMap<String, String>,
+//                         combos: &IndexMap<Vec<String>, String>, state: Vec<String>) {
+//     if let Some(event) = event_pump.poll_iter().next() {
+//         match event {
+//             Event::Quit {..} |
+//             Event::KeyDown { keycode: Some(Keycode::Escape), .. } => return,
+//             Event::KeyDown { keycode: Some(key), .. } => {
+//                 let new_state = handle_key(key, state, keymap, combos);
+//                 event_loop_recursive(event_pump, keymap, combos, new_state);
+//             },
+//             _ => event_loop_recursive(event_pump, keymap, combos, state),
+//         }
+//     }
+//     event_loop_recursive(event_pump, keymap, combos, state);
+// }
 
 
 fn init_sdl(keymap: IndexMap<String, String>, combos: IndexMap<Vec<String>, String>) {
@@ -88,7 +103,7 @@ fn init_sdl(keymap: IndexMap<String, String>, combos: IndexMap<Vec<String>, Stri
         .expect("Could not initialize the video subsystem");
 
     let mut event_pump = sdl_context.event_pump().unwrap();
-    event_loop_recursive(&mut event_pump, &keymap, &combos, Vec::new())
+    event_loop(&mut event_pump, &keymap, &combos, vec![])
 }
 
 fn main() {
@@ -100,7 +115,7 @@ fn main() {
     // dbg!(&str_file); // OK
     parsing::parse_file(&str_file);
     let (keymap, combos) = parsing::parse_file(&str_file);
-    dbg!(&keymap); // OK
-    dbg!(&combos); // OK
+    // dbg!(&keymap); // OK
+    // dbg!(&combos); // OK
     init_sdl(keymap, combos);
 }
