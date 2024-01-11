@@ -1,12 +1,16 @@
 d;right
 a;left
 Space;jump
-j;kick
+j;jump
+J;kick
 k;punch
+K;punch
 
 jump+kick;air kick
 jump+punch;air punch
+jump+punch;dup punch
 right+kick;big kick
 kick+right;low kick
 kick;fast kick
 jump+jump;double jump
+jump+jump+jump;triple jump

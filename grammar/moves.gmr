@@ -4,9 +4,12 @@ Space;jump
 J;kick
 K;punch
 
+jump;jump
 jump+kick;air kick
 jump+punch;air punch
 right+kick;big kick
 kick+right;low kick
 kick;fast kick
 jump+jump;double jump
+jump+jump+jump;
+jkfjjhfjhf;kkjhjk
