@@ -4,6 +4,7 @@ use sdl2::{
     keyboard::Keycode,
 };
 use crate::combos;
+use tailcall::tailcall;
 
 fn handle_key(key: Keycode, state: Vec<String>, keymap: &IndexMap<Keycode, String>, combos: &IndexMap<Vec<String>, String>) -> Vec<String> {
     if let Some(action) = keymap.get(&key) {
@@ -13,37 +14,22 @@ fn handle_key(key: Keycode, state: Vec<String>, keymap: &IndexMap<Keycode, Strin
     }
 }
 
-fn event_loop(event_pump: &mut sdl2::EventPump, keymap: &IndexMap<Keycode, String>, 
-    combos: &IndexMap<Vec<String>, String>, mut state: Vec<String>) {
-    loop {
-        if let Some(event) = event_pump.poll_iter().next() {
-            match event {
-                Event::Quit {..} |
-                Event::KeyDown { keycode: Some(Keycode::Escape), .. } => return,
-                Event::KeyDown { keycode: Some(key), .. } => {
-                    state = handle_key(key, state, keymap, combos);
-                        },
-                _ => {}
-        }}}
+#[tailcall] #[allow(unreachable_code)]
+fn event_loop(event_pump: &mut sdl2::EventPump, keymap: &IndexMap<Keycode, String>,
+              combos: &IndexMap<Vec<String>, String>, state: Vec<String>) {
+    if let Some(event) = event_pump.poll_iter().next() {
+        match event {
+            Event::Quit {..} |
+            Event::KeyDown { keycode: Some(Keycode::Escape), .. } => return,
+            Event::KeyDown { keycode: Some(key), .. } => {
+                let new_state = handle_key(key, state, keymap, combos);
+                event_loop(event_pump, keymap, combos, new_state);
+            },
+            _ => {}
+        }
+    }
+    event_loop(event_pump, keymap, combos, state);
 }
-
-// version tailcall mais j'arrive pas a supp les warnings :(
-// #[tailcall]
-// fn event_loop_rec(event_pump: &mut sdl2::EventPump, keymap: &IndexMap<String, String>,
-//                         combos: &IndexMap<Vec<String>, String>, state: Vec<String>) {
-//     if let Some(event) = event_pump.poll_iter().next() {
-//         match event {
-//             Event::Quit {..} |
-//             Event::KeyDown { keycode: Some(Keycode::Escape), .. } => return,
-//             Event::KeyDown { keycode: Some(key), .. } => {
-//                 let new_state = handle_key(key, state, keymap, combos);
-//                 event_loop_recursive(event_pump, keymap, combos, new_state);
-//             },
-//             _ => event_loop_recursive(event_pump, keymap, combos, state),
-//         }
-//     }
-//     event_loop_recursive(event_pump, keymap, combos, state);
-// }
 
 
 pub fn init_sdl(keymap: IndexMap<Keycode, String>, combos: IndexMap<Vec<String>, String>) {
