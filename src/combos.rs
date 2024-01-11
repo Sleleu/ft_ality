@@ -2,11 +2,7 @@ use indexmap::IndexMap;
 use crate::display;
 
 fn find_combo(state: &Vec<String>, combos: &IndexMap<Vec<String>, String>) -> Option<String> {
-    combos.iter()
-        .find_map(|(keys, value)| {
-            if state == (keys) { Some(value.clone()) }
-            else { None }
-        })
+    combos.get(state).cloned()
 }
 
 fn is_longer_combo(state: &Vec<String>, combos: &IndexMap<Vec<String>, String>) -> bool {
