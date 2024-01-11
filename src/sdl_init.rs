@@ -7,10 +7,9 @@ use crate::combos;
 use tailcall::tailcall;
 
 fn handle_key(key: Keycode, state: Vec<String>, keymap: &IndexMap<Keycode, String>, combos: &IndexMap<Vec<String>, String>) -> Vec<String> {
-    if let Some(action) = keymap.get(&key) {
-        combos::check_if_combo(state, action.clone(), combos)
-    } else {
-        state
+    match keymap.get(&key) {
+        Some(action) => { combos::check_if_combo(state, action.clone(), combos) },
+        None => {state}
     }
 }
 
@@ -23,12 +22,12 @@ fn event_loop(event_pump: &mut sdl2::EventPump, keymap: &IndexMap<Keycode, Strin
             Event::KeyDown { keycode: Some(Keycode::Escape), .. } => return,
             Event::KeyDown { keycode: Some(key), .. } => {
                 let new_state = handle_key(key, state, keymap, combos);
-                event_loop(event_pump, keymap, combos, new_state);
+                event_loop(event_pump, keymap, combos, new_state)
             },
             _ => {}
         }
     }
-    event_loop(event_pump, keymap, combos, state);
+    event_loop(event_pump, keymap, combos, state)
 }
 
 

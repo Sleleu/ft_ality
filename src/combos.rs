@@ -32,7 +32,7 @@ pub fn check_if_combo(state: Vec<String>, action: String, combos: &IndexMap<Vec<
                 display::display_combo(&vec![action.clone()], combo_name.to_string());
                 vec![action] // Retoune l'action
             }
-            else if !is_in_combo(&new_state, combos) { vec![] }
+            else if !is_in_combo(&new_state, combos) { vec![action] }
             else { new_state }
         }
     }
